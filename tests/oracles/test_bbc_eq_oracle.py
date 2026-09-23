@@ -3,7 +3,7 @@ import unittest
 from aalpy.automata import Dfa, DfaState, MealyState, MealyMachine
 from aalpy.base import Oracle
 from aalpy.learning_algs import run_Lstar
-from aalpy.model_checkers import IUOBugDfaModelCheckingOracle
+from aalpy.model_checking_oracles import IUOBugDfaModelCheckingOracle
 from aalpy.oracles import BBCEqOracle, WMethodEqOracle
 from aalpy.SULs import AutomatonSUL
 from tests.oracles.test_baseOracle import BaseOracleTests

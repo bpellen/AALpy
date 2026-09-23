@@ -46,7 +46,7 @@ from .learning_algs import (
     RandomhWOracle,
     RandomWphWOracle
 )
-from .model_checkers import (
+from .model_checking_oracles import (
     IUOBugDfaModelCheckingOracle
 )
 from .oracles import (

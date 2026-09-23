@@ -1,7 +1,7 @@
 import unittest
 
 from aalpy.automata import Dfa, DfaState, MealyMachine, MealyState
-from aalpy.model_checkers import IUOBugDfaModelCheckingOracle
+from aalpy.model_checking_oracles import IUOBugDfaModelCheckingOracle
 from aalpy.utils.AutomatonGenerators import generate_random_dfa
 from aalpy.utils.ModelChecking import bisimilar
 
