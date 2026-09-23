@@ -65,6 +65,10 @@ def precise_word_dfa(word: Tuple[str], alphabet=('a', 'b')):
     return Dfa(states[0], states)
 
 def get_precise_word_adaptive_query(accepted_input_word: tuple, expected_output_word: tuple) -> Any:
+    """
+    Create an adaptive query which provides precisely the accepted_input_word and verifies that it
+    receives the expected_output_word
+    """
     class PreciseWordADS:
         def __init__(self, accepted_input_word: tuple, expected_output_word: tuple):
             self.remaining_accepted_input_word = accepted_input_word
