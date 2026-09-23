@@ -68,6 +68,9 @@ from .oracles import (
     KWayStateCoverageEqOracle,
     KWayTransitionCoverageEqOracle,
 )
+from .property_monitors import (
+    IUOBugDfaMonitor
+)
 from .SULs import (
     AutomatonSUL, 
     FunctionDecorator, 
