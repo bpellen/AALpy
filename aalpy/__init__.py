@@ -46,7 +46,11 @@ from .learning_algs import (
     RandomhWOracle,
     RandomWphWOracle
 )
+from .model_checkers import (
+    IUOBugDfaModelCheckingOracle
+)
 from .oracles import (
+    BBCEqOracle,
     BreadthFirstExplorationEqOracle,
     CacheBasedEqOracle,
     KWayStateCoverageEqOracle,
