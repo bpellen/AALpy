@@ -124,7 +124,7 @@ class BBCEqOracleTests(BaseOracleTests):
         sul = AutomatonSUL(mealy)
 
         base_oracle = WMethodEqOracle(mealy.get_input_alphabet(), sul, len(mealy.states) + 1)
-        def violation_callback(label: str, cex: list) -> None:
+        def violation_callback(label: str, cex: tuple) -> None:
             # The property has no counterexample that could have been confirmed against the SUT, so the callback may not have been called with a counterexample
             assert False
 
@@ -149,7 +149,7 @@ class BBCEqOracleTests(BaseOracleTests):
         sul = AutomatonSUL(mealy)
 
         violation_cex = None
-        def violation_callback(label: str, cex: list) -> None:
+        def violation_callback(label: str, cex: tuple) -> None:
             nonlocal violation_cex
 
             assert label == "ViolatedProperty"
@@ -228,7 +228,7 @@ class BBCEqOracleTests(BaseOracleTests):
             dfa_letter_to_mealy_letter=mealy_letter_from_dfa_letter
         )
 
-        def violation_callback(label: str, cex: list) -> None:
+        def violation_callback(label: str, cex: tuple) -> None:
             # The property has no counterexample that could have been confirmed against the SUT, so the callback may not have been called with a counterexample
             assert False
 
@@ -277,7 +277,7 @@ class BBCEqOracleTests(BaseOracleTests):
             dfa_letter_to_mealy_letter=mealy_letter_from_dfa_letter
         )
 
-        def violation_callback(label: str, cex: list) -> None:
+        def violation_callback(label: str, cex: tuple) -> None:
             # The property has no counterexample that could have been confirmed against the SUT, so the callback may not have been called with a counterexample
             assert False
 
@@ -306,7 +306,7 @@ class BBCEqOracleTests(BaseOracleTests):
         validation_sul = AutomatonSUL(mealy)
 
         violation_cex = None
-        def violation_callback(label: str, cex: list) -> None:
+        def violation_callback(label: str, cex: tuple) -> None:
             nonlocal violation_cex
 
             assert label == "ViolatedProperty"
@@ -428,7 +428,7 @@ class BBCEqOracleTests(BaseOracleTests):
         sul = AutomatonSUL(mealy)
 
         violation_cex = None
-        def violation_callback(label: str, cex: list) -> None:
+        def violation_callback(label: str, cex: tuple) -> None:
             nonlocal violation_cex
 
             assert label == "ViolatedProperty"
