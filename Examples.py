@@ -1376,3 +1376,101 @@ def hW_resetless_learning_example():
 
     assert learned_model.is_minimal()
     assert bisimilar(model, learned_model)
+
+
+def black_box_checking_example():
+    from aalpy.automata import Dfa, MealyMachine
+    from aalpy.learning_algs import run_KV
+    from aalpy.model_checking_oracles import IUOBugDfaModelCheckingOracle
+    from aalpy.oracles import BBCEqOracle, WMethodEqOracle
+    from aalpy.SULs import AutomatonSUL
+    from aalpy.utils import generate_random_deterministic_automata
+
+    # Define a SUL
+    # This Mealy machine with alphabet ['a', 'b'] outputs the sequence ('o', 'x', 'o', 'y') for any input sequence
+    # that starts with ('a', 'a', 'a', 'a'), and it outputs only 'o's for any other input sequence
+    mealy = MealyMachine.from_state_setup({
+        'q0': {'a': ('o', 'q1'), 'b': ('o', 'sink')},
+        'q1': {'a': ('x', 'q2'), 'b': ('o', 'sink')},
+        'q2': {'a': ('o', 'q3'), 'b': ('o', 'sink')},
+        'q3': {'a': ('y', 'sink'), 'b': ('o', 'sink')},
+        'sink': {'a': ('o', 'sink'), 'b': ('o', 'sink')}
+    })
+    sul = AutomatonSUL(mealy)
+
+    # Specify one or more properties to check against the SUL
+    # We specify a property that is not allowed by the SUL, so that this can be found with BBC
+    # This Dfa accepts precisely the word ('Ia', 'Oo', 'Ia', 'Ox'), which can be traversed in Mealy machine mealy
+    violated_dfa = Dfa.from_state_setup({
+        'p0': (False,   {'Ia': 'p1',   'Ib': 'sink', 'Oo': 'sink', 'Ox': 'sink', 'Oy': 'sink'}),
+        'p1': (False,   {'Ia': 'sink', 'Ib': 'sink', 'Oo': 'p2',   'Ox': 'sink', 'Oy': 'sink'}),
+        'p2': (False,   {'Ia': 'p3',   'Ib': 'sink', 'Oo': 'sink', 'Ox': 'sink', 'Oy': 'sink'}),
+        'p3': (False,   {'Ia': 'sink', 'Ib': 'sink', 'Oo': 'sink', 'Ox': 'bug',  'Oy': 'sink'}),
+        'bug': (True,   {'Ia': 'sink', 'Ib': 'sink', 'Oo': 'sink', 'Ox': 'sink', 'Oy': 'sink'}),
+        'sink': (False, {'Ia': 'sink', 'Ib': 'sink', 'Oo': 'sink', 'Ox': 'sink', 'Oy': 'sink'})
+    })
+    # This object represents the property described by Dfa prop_dfa.
+    # It would therefore conclude that the input sequence ('a', 'a') which can be traversed in mealy is not allowed
+    # to have the corresponding output sequence ('o', 'x')
+    violated_prop = IUOBugDfaModelCheckingOracle(
+        bug_dfa=violated_dfa,
+        mealy_input_to_dfa_input=lambda i: f'I{i}',
+        mealy_output_to_dfa_output=lambda o: f'O{o}',
+        is_dfa_input=lambda l: l.startswith('I'),
+        dfa_letter_to_mealy_letter=lambda l: l[1:]
+    )
+
+    # Choose any equivalence oracle
+    base_oracle = WMethodEqOracle(mealy.get_input_alphabet(), sul, len(mealy.states) + 1)
+
+    # Specify a callback for when a property violation is found in the SUL
+    property_counterexample = None
+    num_oracle_queries_when_counterexample_is_found = None
+    num_oracle_steps_when_counterexample_is_found = None
+    num_sul_queries_when_counterexample_is_found = None
+    num_sul_cached_queries_when_counterexample_is_found = None
+    num_sul_steps_when_counterexample_is_found = None
+    def violation_callback(label: str, cex: tuple) -> None:
+        nonlocal property_counterexample
+        nonlocal num_oracle_queries_when_counterexample_is_found
+        nonlocal num_oracle_steps_when_counterexample_is_found
+        nonlocal num_sul_queries_when_counterexample_is_found
+        nonlocal num_sul_cached_queries_when_counterexample_is_found
+        nonlocal num_sul_steps_when_counterexample_is_found
+        property_counterexample = cex
+        num_oracle_queries_when_counterexample_is_found = base_oracle.num_queries
+        num_oracle_steps_when_counterexample_is_found = base_oracle.num_steps
+        num_sul_queries_when_counterexample_is_found = sul.num_queries
+        num_sul_cached_queries_when_counterexample_is_found = sul.num_cached_queries
+        num_sul_steps_when_counterexample_is_found = sul.num_steps
+
+        print(f"BBC confirmed counterexample for property {label} against the SUL:")
+        print(f" Counterexample")
+        print(f"  Counterexample: {cex}")
+        print(f" Learning Algorithm")
+        print(f"  # Membership Queries  : {sul.num_queries}")
+        print(f"  # MQ Saved by Caching : {sul.num_cached_queries}")
+        print(f"  # Steps               : {sul.num_steps}")
+        print(f" Equivalence Query")
+        print(f"  # Membership Queries  : {base_oracle.num_queries}")
+        print(f"  # Steps               : {base_oracle.num_steps}")
+
+    # Instantiate the BBC oracle
+    bbc_oracle = BBCEqOracle(
+        eq_oracle=base_oracle,
+        property_oracles={"Property": violated_prop},
+        property_violation_callback=violation_callback
+    )
+
+    # Use the BBC oracle as the equivalence oracle in model learning
+    learned_mealy = run_KV(mealy.get_input_alphabet(), sul, bbc_oracle, 'mealy')
+
+    assert learned_mealy == mealy
+
+    assert num_oracle_queries_when_counterexample_is_found < base_oracle.num_queries
+    assert num_oracle_steps_when_counterexample_is_found < base_oracle.num_steps
+    assert num_sul_queries_when_counterexample_is_found < sul.num_queries
+    assert num_sul_cached_queries_when_counterexample_is_found <= sul.num_cached_queries
+    assert num_sul_steps_when_counterexample_is_found < sul.num_steps
+
+    return property_counterexample
