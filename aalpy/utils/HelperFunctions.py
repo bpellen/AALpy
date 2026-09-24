@@ -575,8 +575,9 @@ def IUO_dfa_from_IXO_dfa(ixo_dfa: Dfa,
         sink_state = DfaState(sink_state_id, is_accepting=make_new_states_accepting)
         dfa.states.append(sink_state)
 
+        iuo_alphabet = dfa.get_input_alphabet()
         for state in dfa.states:
-            for a in dfa.get_input_alphabet():
+            for a in iuo_alphabet:
                 if a not in state.transitions:
                     state.transitions[a] = sink_state
 
