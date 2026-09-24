@@ -2,7 +2,7 @@ from typing import Any, Tuple
 import unittest
 
 from aalpy.automata import Dfa, DfaState, MealyState, MealyMachine
-from aalpy.base import Oracle
+from aalpy.base import Oracle, SUL
 from aalpy.base.Automaton import Automaton, InputType
 from aalpy.learning_algs import run_Lstar
 from aalpy.model_checking_oracles import IUOBugDfaModelCheckingOracle
@@ -11,18 +11,18 @@ from aalpy.SULs import AutomatonSUL
 from tests.oracles.test_baseOracle import BaseOracleTests
 
 
-def get_accepting_oracle() -> Oracle:
+def get_accepting_oracle(alphabet: list, sul: SUL) -> Oracle:
     """
     Create an Oracle which never returns a counterexample
     """
     class AcceptingOracle(Oracle):
-        def __init__(self):
-            super().__init__(None, None)
+        def __init__(self, alphabet: list, sul: SUL):
+            super().__init__(alphabet, sul)
 
         def find_cex(self, hypothesis: Automaton) -> Tuple[InputType, ...] | None:
             return None
 
-    return AcceptingOracle()
+    return AcceptingOracle(alphabet, sul)
 
 
 def precise_word_mealy(word: Tuple[str], alphabet=('a', 'b')):
@@ -81,12 +81,10 @@ class BBCEqOracleTests(BaseOracleTests):
         )
         sul = AutomatonSUL(mealy)
 
-        base_oracle = get_accepting_oracle()
+        base_oracle = get_accepting_oracle(mealy.get_input_alphabet(), sul)
         oracle = BBCEqOracle(
-            alphabet=mealy.get_input_alphabet(),
-            sul=sul,
-            property_oracles=dict(),
-            eq_oracle=base_oracle
+            eq_oracle=base_oracle,
+            property_oracles=dict()
         )
 
         self.assertEqual(oracle.alphabet, base_oracle.alphabet)
@@ -108,10 +106,8 @@ class BBCEqOracleTests(BaseOracleTests):
 
         base_oracle = WMethodEqOracle(alphabet, learning_sul, len(learning_sul.automaton.states) + 1)
         oracle = BBCEqOracle(
-            alphabet=alphabet,
-            sul=learning_sul,
-            property_oracles=dict(),
-            eq_oracle=base_oracle
+            eq_oracle=base_oracle,
+            property_oracles=dict()
         )
 
         self.validate_eq_oracle(alphabet, oracle, learning_sul, validation_sul)
@@ -129,12 +125,10 @@ class BBCEqOracleTests(BaseOracleTests):
             assert False
 
         oracle = BBCEqOracle(
-            alphabet=mealy.get_input_alphabet(),
-            sul=sul,
-            property_oracles={
-                "SatisfiedProperty": get_accepting_oracle()
-            },
             eq_oracle=base_oracle,
+            property_oracles={
+                "SatisfiedProperty": get_accepting_oracle(mealy.get_input_alphabet(), sul)
+            },
             property_violation_callback=violation_callback
         )
 
@@ -183,13 +177,11 @@ class BBCEqOracleTests(BaseOracleTests):
         )
 
         oracle = BBCEqOracle(
-            alphabet=mealy.get_input_alphabet(),
-            sul=sul,
+            eq_oracle=base_oracle,
             property_oracles={
-                "SatisfiedProperty": get_accepting_oracle(),
+                "SatisfiedProperty": get_accepting_oracle(mealy.get_input_alphabet(), sul),
                 "ViolatedProperty": violated_prop_mc_oracle
             },
-            eq_oracle=base_oracle,
             property_violation_callback=violation_callback
         )
 
@@ -234,12 +226,10 @@ class BBCEqOracleTests(BaseOracleTests):
 
         sul = AutomatonSUL(sul_mealy)
         oracle = BBCEqOracle(
-            alphabet=sul_mealy.get_input_alphabet(),
-            sul=sul,
+            eq_oracle=get_accepting_oracle(sul_mealy.get_input_alphabet(), sul),
             property_oracles={
                 "Property": prop_mc_oracle
             },
-            eq_oracle=get_accepting_oracle(),
             property_violation_callback=violation_callback
         )
 
@@ -283,12 +273,10 @@ class BBCEqOracleTests(BaseOracleTests):
 
         sul = AutomatonSUL(sul_mealy)
         oracle = BBCEqOracle(
-            alphabet=sul_mealy.get_input_alphabet(),
-            sul=sul,
+            eq_oracle=get_accepting_oracle(sul_mealy.get_input_alphabet(), sul),
             property_oracles={
                 "Property": prop_mc_oracle
             },
-            eq_oracle=get_accepting_oracle(),
             property_violation_callback=violation_callback
         )
 
@@ -340,13 +328,11 @@ class BBCEqOracleTests(BaseOracleTests):
         )
 
         oracle = BBCEqOracle(
-            alphabet=mealy.get_input_alphabet(),
-            sul=learning_sul,
+            eq_oracle=base_oracle,
             property_oracles={
-                "SatisfiedProperty": get_accepting_oracle(),
+                "SatisfiedProperty": get_accepting_oracle(mealy.get_input_alphabet(), learning_sul),
                 "ViolatedProperty": violated_prop_mc_oracle
             },
-            eq_oracle=base_oracle,
             property_violation_callback=violation_callback
         )
         self.assertEqual(oracle.alphabet, base_oracle.alphabet)
@@ -409,12 +395,10 @@ class BBCEqOracleTests(BaseOracleTests):
         )
 
         oracle = BBCEqOracle(
-            alphabet=mealy.get_input_alphabet(),
-            sul=learning_sul,
+            eq_oracle=base_oracle,
             property_oracles={
                 "ViolatedProperty": violated_prop_mc_oracle
-            },
-            eq_oracle=base_oracle
+            }
         )
 
         hyp_mealy = MealyMachine.from_state_setup(mealy.to_state_setup())
@@ -462,13 +446,11 @@ class BBCEqOracleTests(BaseOracleTests):
         )
 
         oracle = BBCEqOracle(
-            alphabet=mealy.get_input_alphabet(),
-            sul=sul,
+            eq_oracle=base_oracle,
             property_oracles={
-                "SatisfiedProperty": get_accepting_oracle(),
+                "SatisfiedProperty": get_accepting_oracle(mealy.get_input_alphabet(), sul),
                 "ViolatedProperty": violated_prop_mc_oracle
             },
-            eq_oracle=base_oracle,
             property_violation_callback=violation_callback
         )
 

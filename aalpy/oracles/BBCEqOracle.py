@@ -8,19 +8,17 @@ class BBCEqOracle(Oracle):
     the properties against which the hypotheses should be checked.
     """
 
-    def __init__(self, alphabet: list, sul: SUL,
-                 property_oracles: Dict[str,Oracle],
+    def __init__(self,
                  eq_oracle: Oracle,
+                 property_oracles: Dict[str,Oracle],
                  property_violation_callback: Callable[[str,tuple],None] | None = None,
                  check_all_props_when_a_first_prop_cex_was_found: bool = True):
         """
         Create a BBC equivalence oracle.
 
-        :param list alphabet: Input alphabet.
-        :param SUL sul: System under learning.
+        :param Oracle eq_oracle: Wrapped equivalence oracle.
         :param Dict[str,Oracle] property_oracles: Dictionary that maps string-typed labels to the Oracles
             that represent the properties against which the hypotheses should be checked.
-        :param Oracle eq_oracle: Wrapped equivalence oracle.
         :param Callable[[str,tuple],None] | None property_violation_callback: Optional callback to be
             called when a monitor is found to be violated by the SUL. The monitor's label and the
             counterexample input sequence are then passed to the callback as arguments.
@@ -29,7 +27,6 @@ class BBCEqOracle(Oracle):
             found before all of them are checked. 
         """
         self.eq_oracle = eq_oracle
-        super().__init__(alphabet, sul)
 
         self.property_oracles = property_oracles
         self.property_violation_callback = property_violation_callback
