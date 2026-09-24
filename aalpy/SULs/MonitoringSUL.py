@@ -23,7 +23,6 @@ class MonitoringSUL(SUL):
             counterexample input sequence are then passed to the callback as arguments.
         """
         self.sul = sul
-        super().__init__()
 
         self.property_monitors = property_monitors
         self.property_violation_callback = property_violation_callback
