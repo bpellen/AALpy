@@ -180,7 +180,7 @@ class MonitoringSUL(SUL):
 
         # Empty string for DFA
         if len(word) == 0:
-            self.steps += 1
+            self.num_steps += 1
             out.append(self.step(None))
         else:
             for letter in word:
