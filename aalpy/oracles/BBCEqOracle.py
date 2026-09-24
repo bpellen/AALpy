@@ -106,11 +106,11 @@ class BBCEqOracle(Oracle):
                 continue
 
             cex = prop.find_cex(hypothesis)
-            if cex is not None:
-                tuple(cex)
 
             # If the property oracle rejects the hypothesis for cex
             if cex is not None:
+                cex = tuple(cex)
+
                 hyp_out = tuple(hypothesis.execute_sequence(hypothesis.initial_state, cex))
                 sul_out = tuple(self.sul.query(cex))
 
