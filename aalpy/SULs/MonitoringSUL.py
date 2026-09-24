@@ -34,6 +34,13 @@ class MonitoringSUL(SUL):
         # Keep track of the latest input sequence so that it can be passed to the property_violation_callback
         self.inputs = []
 
+    def __getattr__(self, name):
+        # Forward attribute/method lookups that MonitoringSUL does not define to the wrapped SUL,
+        # so wrappers like Wrapper(SUL) stay accessible through the monitoring layer (e.g. from an equivalence oracle)
+        if name == 'sul':
+            raise AttributeError(name)
+        return getattr(self.sul, name)
+
     """
     Bind the number of queries to that of the wrapped system under learning.
     """
