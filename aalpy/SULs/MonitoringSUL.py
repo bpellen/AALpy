@@ -33,6 +33,7 @@ class MonitoringSUL(SUL):
         # Keep track of the latest input sequence so that it can be passed to the property_violation_callback
         self.inputs = []
 
+
     def __getattr__(self, name):
         # Forward attribute/method lookups that MonitoringSUL does not define to the wrapped SUL,
         # so wrappers like Wrapper(SUL) stay accessible through the monitoring layer (e.g. from an equivalence oracle)
@@ -40,9 +41,7 @@ class MonitoringSUL(SUL):
             raise AttributeError(name)
         return getattr(self.sul, name)
 
-    """
-    Bind the number of queries to that of the wrapped system under learning.
-    """
+    # Bind the number of queries to that of the wrapped system under learning.
     @property
     def num_queries(self) -> int:
         return self.sul.num_queries
@@ -50,9 +49,7 @@ class MonitoringSUL(SUL):
     def num_queries(self, value: int) -> None:
         self.sul.num_queries = value
 
-    """
-    Bind the number of steps to that of the wrapped system under learning.
-    """
+    # Bind the number of steps to that of the wrapped system under learning.
     @property
     def num_steps(self) -> int:
         return self.sul.num_steps
@@ -60,9 +57,7 @@ class MonitoringSUL(SUL):
     def num_steps(self, value: int) -> None:
         self.sul.num_steps = value
 
-    """
-    Bind the number of cached queries to that of the wrapped system under learning.
-    """
+    # Bind the number of cached queries to that of the wrapped system under learning.
     @property
     def num_cached_queries(self) -> int:
         return self.sul.num_cached_queries
@@ -126,11 +121,9 @@ class MonitoringSUL(SUL):
 
         return output
 
-    """
-    Override this method to ensure that the number of equivalence queries is incremented before any SUL steps are taken and the
-    number of steps is incremented right before the steps are taken, so that these numbers are correct in case they are read by
-    self.property_violation_callback
-    """
+    # Override this method to ensure that the number of equivalence queries is incremented before any SUL steps are taken and the
+    # number of steps is incremented right before the steps are taken, so that these numbers are correct in case they are read by
+    # self.property_violation_callback
     def query(self, word: tuple) -> list:
         """
         Performs a membership query on the SUL. Before the query, pre() method is called and after the query post()
@@ -163,11 +156,9 @@ class MonitoringSUL(SUL):
         self.post()
         return out
 
-    """
-    Override this method to ensure that the number of equivalence queries is incremented before any SUL steps are taken and the
-    number of steps is incremented right before the steps are taken, so that these numbers are correct in case they are read by
-    self.property_violation_callback
-    """
+    # Override this method to ensure that the number of equivalence queries is incremented before any SUL steps are taken and the
+    # number of steps is incremented right before the steps are taken, so that these numbers are correct in case they are read by
+    # self.property_violation_callback
     def adaptive_query(self, word, ads):
         """
 

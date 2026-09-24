@@ -36,9 +36,7 @@ class BBCEqOracle(Oracle):
         self.violated_properties = set()
 
 
-    """
-    Bind the alphabet to that of the wrapped equivalence oracle.
-    """
+    # Bind the alphabet to that of the wrapped equivalence oracle.
     @property
     def alphabet(self) -> list:
         return self.eq_oracle.alphabet
@@ -46,9 +44,7 @@ class BBCEqOracle(Oracle):
     def alphabet(self, value: list) -> None:
         self.eq_oracle.alphabet = value
 
-    """
-    Bind the system under learning to that of the wrapped equivalence oracle.
-    """
+    # Bind the system under learning to that of the wrapped equivalence oracle.
     @property
     def sul(self) -> SUL:
         return self.eq_oracle.sul
@@ -56,9 +52,7 @@ class BBCEqOracle(Oracle):
     def sul(self, value: SUL) -> None:
         self.eq_oracle.sul = value
 
-    """
-    Bind the number of queries to that of the wrapped equivalence oracle.
-    """
+    # Bind the number of queries to that of the wrapped equivalence oracle.
     @property
     def num_queries(self) -> int:
         return self.eq_oracle.num_queries
@@ -66,9 +60,7 @@ class BBCEqOracle(Oracle):
     def num_queries(self, value: int) -> None:
         self.eq_oracle.num_queries = value
 
-    """
-    Bind the number of steps to that of the wrapped equivalence oracle.
-    """
+    # Bind the number of steps to that of the wrapped equivalence oracle.
     @property
     def num_steps(self) -> int:
         return self.eq_oracle.num_steps
