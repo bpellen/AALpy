@@ -45,14 +45,14 @@ class MonitoringSUL(SUL):
 
     def __init__(self, sul: SUL,
                  property_monitors: Dict[str,PropertyMonitor],
-                 property_violation_callback: Callable[[str,list],None] | None = None):
+                 property_violation_callback: Callable[[str,tuple],None] | None = None):
         """
         Create a SUL wrapper that performs runtime monitoring. 
 
         :param SUL sul: Wrapped SUL.
         :param Dict[str,PropertyMonitor] property_monitors: Dictionary that maps string-typed labels
             to the PropertyMonitors that should be used for monitoring.
-        :param Callable[[str,list],None] | None property_violation_callback: Optional callback to be
+        :param Callable[[str,tuple],None] | None property_violation_callback: Optional callback to be
             called when a monitor is found to be violated by the SUL. The monitor's label and the
             counterexample input sequence are then passed to the callback as arguments.
         """
@@ -150,7 +150,7 @@ class MonitoringSUL(SUL):
                 self.violated_properties.add(label)
 
                 if self.property_violation_callback is not None:
-                    self.property_violation_callback(label, self.inputs)
+                    self.property_violation_callback(label, tuple(self.inputs))
 
         return output
 
