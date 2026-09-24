@@ -538,25 +538,24 @@ def IUO_dfa_from_IXO_dfa(ixo_dfa: Dfa,
                     if candidate_os_dst_state_id != "":
                         candidate_os_dst_state_id += "_"
                     candidate_os_dst_state_id += f"O{o}D{o_dst_state_id}"
-            defined_os_and_dsts = tuple(sorted(defined_os_and_dsts))
-            if defined_os_and_dsts in defined_os_and_dsts_to_state_id_map:
-                os_dst_state_id = defined_os_and_dsts_to_state_id_map[defined_os_and_dsts]
-            else:
-                os_dst_state_id = make_state_id_unique(candidate_os_dst_state_id)
-                defined_os_and_dsts_to_state_id_map[defined_os_and_dsts] = os_dst_state_id
-
             # ixo_state has no transitions for i if defined_os_and_dsts remains empty
             if len(defined_os_and_dsts) == 0:
                 continue
 
-            # get the os_dst_state state from its ID if it has already been created
-            if os_dst_state_id in iuo_state_map:
+            # obtain the state for defined_os_and_dsts if it has already been created
+            defined_os_and_dsts = tuple(sorted(defined_os_and_dsts))
+            if defined_os_and_dsts in defined_os_and_dsts_to_state_id_map:
+                os_dst_state_id = defined_os_and_dsts_to_state_id_map[defined_os_and_dsts]
                 os_dst_state = iuo_state_map[os_dst_state_id]
             else:
-                # create the os_dst_state state and add its defined transitions if it has yet to be created
+                # create a new state for defined_os_and_dsts if this has yet to be created
+                os_dst_state_id = make_state_id_unique(candidate_os_dst_state_id)
+                defined_os_and_dsts_to_state_id_map[defined_os_and_dsts] = os_dst_state_id
+
                 os_dst_state = DfaState(os_dst_state_id, make_new_states_accepting)
                 iuo_state_map[os_dst_state_id] = os_dst_state
 
+                # add the state's transitions
                 for o, dst_id in defined_os_and_dsts:
                     tagged_o = tag_output(o)
                     os_dst_state.transitions[tagged_o] = iuo_state_map[dst_id]
