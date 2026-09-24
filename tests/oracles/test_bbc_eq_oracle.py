@@ -1,7 +1,9 @@
+from typing import Any, Tuple
 import unittest
 
 from aalpy.automata import Dfa, DfaState, MealyState, MealyMachine
 from aalpy.base import Oracle
+from aalpy.base.Automaton import Automaton, InputType
 from aalpy.learning_algs import run_Lstar
 from aalpy.model_checking_oracles import IUOBugDfaModelCheckingOracle
 from aalpy.oracles import BBCEqOracle, WMethodEqOracle

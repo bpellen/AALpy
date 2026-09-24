@@ -1,4 +1,5 @@
 import random
+from typing import Any, Tuple
 import unittest
 
 from aalpy.automata import (Dfa, DfaState, MooreMachine, MooreState, MealyMachine, MealyState, Mdp, MdpState,

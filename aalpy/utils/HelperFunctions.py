@@ -3,9 +3,9 @@ import random
 import string
 from itertools import product
 from collections import defaultdict
-from typing import Any
+from typing import Any, Callable, List
 
-from aalpy import Mdp, MarkovChain, McState, MooreMachine, Dfa, DfaState
+from aalpy import Mdp, MarkovChain, McState, MealyMachine, MooreMachine, Dfa, DfaState
 
 
 def extend_set(list_to_extend: list, new_elements: list) -> list:

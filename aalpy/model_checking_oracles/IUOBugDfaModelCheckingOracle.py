@@ -5,7 +5,7 @@ from aalpy.base.Oracle import Oracle
 from aalpy.base.SUL import SUL
 from aalpy.utils.HelperFunctions import IUO_dfa_from_IXO_dfa, IXO_dfa_from_mealy
 
-from typing import Callable, List, Tuple
+from typing import Any, Callable, List, Tuple
 
 
 class IUOBugDfaModelCheckingOracle(Oracle):

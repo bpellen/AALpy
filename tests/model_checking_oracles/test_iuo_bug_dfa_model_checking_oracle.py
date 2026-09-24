@@ -1,3 +1,4 @@
+from typing import Any, Tuple
 import unittest
 
 from aalpy.automata import Dfa, DfaState, MealyMachine, MealyState
@@ -285,7 +286,7 @@ class IUOBugDfaModelCheckingOracleTests(unittest.TestCase):
             })
         })
 
-        def custom_mealy_to_dfa(_: Mealy) -> Dfa:
+        def custom_mealy_to_dfa(_: MealyMachine) -> Dfa:
             return dfa
 
         prop_bug_dfa = Dfa.from_state_setup({
