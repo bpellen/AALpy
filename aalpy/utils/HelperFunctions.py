@@ -545,7 +545,7 @@ def IUO_dfa_from_IXO_dfa(ixo_dfa: Dfa,
                 os_dst_state_id = make_state_id_unique(candidate_os_dst_state_id)
                 defined_os_and_dsts_to_state_id_map[defined_os_and_dsts] = os_dst_state_id
 
-            # ixo_state has not transitions for i if defined_os_and_dsts remains empty
+            # ixo_state has no transitions for i if defined_os_and_dsts remains empty
             if len(defined_os_and_dsts) == 0:
                 continue
 
