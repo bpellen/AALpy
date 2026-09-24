@@ -498,7 +498,19 @@ def IUO_dfa_from_IXO_dfa(ixo_dfa: Dfa,
     inputs = [ i for (i, o) in ixo_dfa.get_input_alphabet() ]
     outputs = [ o for (i, o) in ixo_dfa.get_input_alphabet() ]
 
+    def make_state_id_unique(state_id: str) -> str:
+        nonlocal iuo_state_map
+
+        existing_state_ids = set(iuo_state_map.keys())
+
+        unique_state_id = state_id # Don't change the given state_id
+        while unique_state_id in existing_state_ids:
+            unique_state_id += "_"
+
+        return unique_state_id
+
     # define transitions and auxiliary states
+    defined_os_and_dsts_to_state_id_map = dict()
     for ixo_state in ixo_dfa.states:
 
         if sink_state_ids is not None and ixo_state.state_id in sink_state_ids:
@@ -513,7 +525,7 @@ def IUO_dfa_from_IXO_dfa(ixo_dfa: Dfa,
             # identify all of the defined outputs and subsequent destination states and use these to
             # create a state ID that describes precisely that transition behavior
             defined_os_and_dsts = []
-            os_dst_state_id = ""
+            candidate_os_dst_state_id = ""
             for o in outputs:
                 if (i, o) not in ixo_state.transitions:
                     continue
@@ -523,9 +535,15 @@ def IUO_dfa_from_IXO_dfa(ixo_dfa: Dfa,
                 if (o, o_dst_state_id) not in defined_os_and_dsts:
                     defined_os_and_dsts.append( (o, o_dst_state_id) )
 
-                    if os_dst_state_id != "":
-                        os_dst_state_id += "_"
-                    os_dst_state_id += f"O{o}D{o_dst_state_id}"
+                    if candidate_os_dst_state_id != "":
+                        candidate_os_dst_state_id += "_"
+                    candidate_os_dst_state_id += f"O{o}D{o_dst_state_id}"
+            defined_os_and_dsts = tuple(sorted(defined_os_and_dsts))
+            if defined_os_and_dsts in defined_os_and_dsts_to_state_id_map:
+                os_dst_state_id = defined_os_and_dsts_to_state_id_map[defined_os_and_dsts]
+            else:
+                os_dst_state_id = make_state_id_unique(candidate_os_dst_state_id)
+                defined_os_and_dsts_to_state_id_map[defined_os_and_dsts] = os_dst_state_id
 
             # ixo_state has not transitions for i if defined_os_and_dsts remains empty
             if len(defined_os_and_dsts) == 0:
@@ -556,7 +574,8 @@ def IUO_dfa_from_IXO_dfa(ixo_dfa: Dfa,
 
     # make the Dfa input complete, if required and requested
     if make_input_complete and not dfa.is_input_complete():
-        sink_state = DfaState("sink_state", is_accepting=make_new_states_accepting)
+        sink_state_id = make_state_id_unique("sink_state")
+        sink_state = DfaState(sink_state_id, is_accepting=make_new_states_accepting)
         dfa.states.append(sink_state)
 
         for state in dfa.states:
