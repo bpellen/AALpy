@@ -153,7 +153,7 @@ class MonitoringSULTests(unittest.TestCase):
         )
         base_sul = AutomatonSUL(mealy)
 
-        def violation_callback(label: str, cex: list) -> None:
+        def violation_callback(label: str, cex: tuple) -> None:
             # The property has no counterexample that could have been confirmed against the SUT, so the callback may not have been called with a counterexample
             assert False
 
@@ -178,7 +178,7 @@ class MonitoringSULTests(unittest.TestCase):
         base_sul = AutomatonSUL(mealy)
 
         violation_cex = None
-        def violation_callback(label: str, cex: list) -> None:
+        def violation_callback(label: str, cex: tuple) -> None:
             nonlocal violation_cex
 
             assert label == "ViolatedProperty"
@@ -287,7 +287,7 @@ class MonitoringSULTests(unittest.TestCase):
         base_sul = AutomatonSUL(mealy)
 
         violation_cex = None
-        def violation_callback(label: str, cex: list) -> None:
+        def violation_callback(label: str, cex: tuple) -> None:
             nonlocal violation_cex
 
             assert label == "ViolatedProperty"
@@ -431,7 +431,7 @@ class MonitoringSULTests(unittest.TestCase):
         violation_cex_num_queries = None
         violation_cex_num_steps = None
         violation_cex_num_cached_queries = None
-        def violation_callback(label: str, cex: list) -> None:
+        def violation_callback(label: str, cex: tuple) -> None:
             nonlocal violation_cex_num_queries
             nonlocal violation_cex_num_steps
             nonlocal violation_cex_num_cached_queries
@@ -515,7 +515,7 @@ class MonitoringSULTests(unittest.TestCase):
         violation_cex_num_queries = None
         violation_cex_num_steps = None
         violation_cex_num_cached_queries = None
-        def violation_callback(label: str, cex: list) -> None:
+        def violation_callback(label: str, cex: tuple) -> None:
             nonlocal violation_cex_num_queries
             nonlocal violation_cex_num_steps
             nonlocal violation_cex_num_cached_queries
