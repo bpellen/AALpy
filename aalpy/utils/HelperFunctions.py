@@ -550,12 +550,10 @@ def IUO_dfa_from_IXO_dfa(ixo_dfa: Dfa,
                 continue
 
             # get the os_dst_state state from its ID if it has already been created
-            os_dst_state = iuo_state_map[os_dst_state_id] \
-                if os_dst_state_id in iuo_state_map \
-                else None
-
-            # create the os_dst_state state and add its defined transitions if it has yet to be created
-            if os_dst_state is None:
+            if os_dst_state_id in iuo_state_map:
+                os_dst_state = iuo_state_map[os_dst_state_id]
+            else:
+                # create the os_dst_state state and add its defined transitions if it has yet to be created
                 os_dst_state = DfaState(os_dst_state_id, make_new_states_accepting)
                 iuo_state_map[os_dst_state_id] = os_dst_state
 
