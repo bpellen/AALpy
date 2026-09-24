@@ -2,8 +2,9 @@ from typing import Any, Tuple
 import unittest
 
 from aalpy.automata import Dfa, DfaState, MealyState, MealyMachine
+from aalpy.base import PropertyMonitor
 from aalpy.property_monitors import IUOBugDfaMonitor
-from aalpy.SULs import AutomatonSUL, MonitoringSUL, PropertyMonitor
+from aalpy.SULs import AutomatonSUL, MonitoringSUL
 
 
 def get_accepting_monitor() -> PropertyMonitor:

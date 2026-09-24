@@ -1,6 +1,6 @@
 # Property monitor that checks for given Mealy machines with input alphabet I and output alphabet O whether their language is rejected by a Dfa with alphabet I union O.
 from aalpy.automata import Dfa
-from aalpy.SULs import PropertyMonitor
+from aalpy.base import PropertyMonitor
 from typing import Any, Callable
 
 

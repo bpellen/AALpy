@@ -27,6 +27,7 @@ from .base import (
     CacheTree,
     DeterministicAutomaton,
     Oracle,
+    PropertyMonitor
 )
 from .learning_algs import (
     run_abstracted_ONFSM_Lstar,
