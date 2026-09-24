@@ -100,26 +100,27 @@ class IUOBugDfaModelCheckingOracle(Oracle):
                     bug_successor = bug_state.transitions[self.bug_dfa_fallback_letter]
 
                 next_pair = (m_successor, bug_successor)
-                parents[next_pair] = current_pair
-                letters_to_parents[next_pair] = letter
-
-                if bug_successor.is_accepting and m_successor.is_accepting:
-                    word = []
-
-                    p = next_pair
-                    while p is not None:
-                        sym = letters_to_parents[p]
-                        if sym is None:
-                            break
-
-                        word = [sym] + word
-                        p = parents[p]
-
-                    return tuple( self.dfa_letter_to_mealy_letter(a) for a in word if self.is_dfa_input(a) )
 
                 if next_pair not in explored:
                     queue.append(next_pair)
                     explored.add(next_pair)
+
+                    parents[next_pair] = current_pair
+                    letters_to_parents[next_pair] = letter
+
+                    if bug_successor.is_accepting and m_successor.is_accepting:
+                        word = []
+
+                        p = next_pair
+                        while p is not None:
+                            sym = letters_to_parents[p]
+                            if sym is None:
+                                break
+
+                            word = [sym] + word
+                            p = parents[p]
+
+                        return tuple( self.dfa_letter_to_mealy_letter(a) for a in word if self.is_dfa_input(a) )
 
         return None
 
