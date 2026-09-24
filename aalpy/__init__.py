@@ -74,6 +74,7 @@ from .property_monitors import (
 )
 from .SULs import (
     AutomatonSUL, 
+    MonitoringSUL, 
     FunctionDecorator, 
     PyClassSUL, 
     RegexSUL, 
