@@ -56,6 +56,9 @@ class IUOBugDfaModelCheckingOracle(Oracle):
         if mealy_to_dfa is not None:
             self.mealy_to_dfa = mealy_to_dfa
 
+        self.num_checks_performed = 0
+        self.num_counterexamples_found = 0
+
     def find_cex(self, mealy: MealyMachine) -> list | None:
         """
         Determine for a given Mealy machine whether it satisfies the property encoded by self.bug_dfa.
@@ -64,8 +67,9 @@ class IUOBugDfaModelCheckingOracle(Oracle):
         :return list | none: If mealy violates the property then an input sequence in mealy that is
             rejected by the property. None if mealy satisfies the property.
         """
-        assert isinstance(mealy, MealyMachine)
+        self.num_checks_performed += 1
 
+        assert isinstance(mealy, MealyMachine)
         m_dfa = self.mealy_to_dfa(mealy)
 
         
@@ -119,6 +123,7 @@ class IUOBugDfaModelCheckingOracle(Oracle):
                             word = [sym] + word
                             p = parents[p]
 
+                        self.num_counterexamples_found += 1
                         return tuple( self.dfa_letter_to_mealy_letter(a) for a in word if self.is_dfa_input(a) )
 
         return None

@@ -90,6 +90,9 @@ class IUOBugDfaModelCheckingOracleTests(unittest.TestCase):
 
         self.assertEqual(oracle.find_cex(mealy), ('a', 'b', 'a', 'b'))
 
+        self.assertEqual(oracle.num_checks_performed, 1)
+        self.assertEqual(oracle.num_counterexamples_found, 1)
+
     def test_no_counterexample_is_found_when_absent(self):
         mealy = MealyMachine.from_state_setup({
             "q": {"i": ("o", "q")}
@@ -110,6 +113,9 @@ class IUOBugDfaModelCheckingOracleTests(unittest.TestCase):
         )
 
         self.assertIsNone(oracle.find_cex(mealy))
+
+        self.assertEqual(oracle.num_checks_performed, 1)
+        self.assertEqual(oracle.num_counterexamples_found, 0)
 
     def test_counterexample_can_be_found_with_fallback_letter(self):
         mealy = precise_word_mealy(
@@ -146,6 +152,9 @@ class IUOBugDfaModelCheckingOracleTests(unittest.TestCase):
 
         self.assertEqual(oracle.find_cex(mealy), ('a', 'b', 'a', 'b'))
 
+        self.assertEqual(oracle.num_checks_performed, 1)
+        self.assertEqual(oracle.num_counterexamples_found, 1)
+
     def test_counterexample_cannot_be_found_when_fallback_output_is_needed_and_missing(self):
         mealy = precise_word_mealy(
             word=('a', 'b', 'a', 'b'),
@@ -181,6 +190,9 @@ class IUOBugDfaModelCheckingOracleTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             oracle.find_cex(mealy)
 
+        self.assertEqual(oracle.num_checks_performed, 1)
+        self.assertEqual(oracle.num_counterexamples_found, 0)
+
     def test_counterexample_always_has_nonzero_length(self):
         mealy = MealyMachine.from_state_setup({
             "q": {"i": ("o", "q")}
@@ -202,6 +214,8 @@ class IUOBugDfaModelCheckingOracleTests(unittest.TestCase):
 
         cex = oracle.find_cex(mealy)
         self.assertEqual(cex, ("i",))
+        self.assertEqual(oracle.num_checks_performed, 1)
+        self.assertEqual(oracle.num_counterexamples_found, 1)
 
     def test_default_mealy_to_dfa(self):
         mealy = MealyMachine.from_state_setup({
@@ -261,6 +275,9 @@ class IUOBugDfaModelCheckingOracleTests(unittest.TestCase):
 
         assert bisimilar(oracle.default_mealy_to_dfa(mealy), mealy_dfa, return_cex=False)
 
+        self.assertEqual(oracle.num_checks_performed, 0)
+        self.assertEqual(oracle.num_counterexamples_found, 0)
+
     def test_custom_mealy_to_dfa(self):
         mealy = MealyMachine.from_state_setup({
             "q0": {
@@ -307,6 +324,9 @@ class IUOBugDfaModelCheckingOracleTests(unittest.TestCase):
 
         assert bisimilar(oracle.mealy_to_dfa(mealy), dfa, return_cex=False)
 
+        self.assertEqual(oracle.num_checks_performed, 0)
+        self.assertEqual(oracle.num_counterexamples_found, 0)
+
     def test_hyp_is_reset(self):
         mealy = MealyMachine.from_state_setup({
             "q0": {"i": ("o1", "q1")},
@@ -333,6 +353,64 @@ class IUOBugDfaModelCheckingOracleTests(unittest.TestCase):
 
         oracle.reset_hyp_and_sul(mealy)
         self.assertEqual(mealy.current_state, mealy.initial_state)
+
+        self.assertEqual(oracle.num_checks_performed, 0)
+        self.assertEqual(oracle.num_counterexamples_found, 0)
+
+    def test_counts_are_accurate(self):
+        satisfying_mealy = precise_word_mealy(
+            word=('a', 'b', 'a'),
+            alphabet=('a', 'b')
+        )
+        violating_mealy = precise_word_mealy(
+            word=('a', 'b', 'a', 'b'),
+            alphabet=('a', 'b')
+        )
+        prop_bug_dfa = precise_word_dfa(
+            word=(
+                dfa_input_from_mealy_input('a'),
+                dfa_output_from_mealy_output('o'),
+                dfa_input_from_mealy_input('b'),
+                dfa_output_from_mealy_output('o'),
+                dfa_input_from_mealy_input('a'),
+                dfa_output_from_mealy_output('o'),
+                dfa_input_from_mealy_input('b'),
+                dfa_output_from_mealy_output('x')
+            ),
+            alphabet=(
+                dfa_input_from_mealy_input('a'),
+                dfa_input_from_mealy_input('b'),
+                dfa_output_from_mealy_output('o'),
+                dfa_output_from_mealy_output('x')
+            )
+        )
+
+        oracle = IUOBugDfaModelCheckingOracle(
+            bug_dfa=prop_bug_dfa,
+            mealy_input_to_dfa_input=dfa_input_from_mealy_input,
+            mealy_output_to_dfa_output=dfa_output_from_mealy_output,
+            is_dfa_input=is_dfa_input,
+            dfa_letter_to_mealy_letter=mealy_letter_from_dfa_letter
+        )
+
+        self.assertEqual(oracle.num_checks_performed, 0)
+        self.assertEqual(oracle.num_counterexamples_found, 0)
+
+        self.assertEqual(oracle.find_cex(satisfying_mealy), None)
+        self.assertEqual(oracle.num_checks_performed, 1)
+        self.assertEqual(oracle.num_counterexamples_found, 0)
+
+        self.assertEqual(oracle.find_cex(violating_mealy), ('a', 'b', 'a', 'b'))
+        self.assertEqual(oracle.num_checks_performed, 2)
+        self.assertEqual(oracle.num_counterexamples_found, 1)
+
+        self.assertEqual(oracle.find_cex(violating_mealy), ('a', 'b', 'a', 'b'))
+        self.assertEqual(oracle.num_checks_performed, 3)
+        self.assertEqual(oracle.num_counterexamples_found, 2)
+
+        self.assertEqual(oracle.find_cex(satisfying_mealy), None)
+        self.assertEqual(oracle.num_checks_performed, 4)
+        self.assertEqual(oracle.num_counterexamples_found, 2)
 
 
 if __name__ == '__main__':
